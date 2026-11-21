@@ -1,0 +1,33 @@
+pipeline {
+    agent {
+        node {label 'node1'}
+    }
+    stages {
+         stage('pull') {
+            steps {
+                git branch: 'main', url: 'https://github.com/SurajBele/studentdata.git'
+                echo "pull successful"
+            }
+        }
+        stage('Build') {
+            steps {
+                echo " building successful"
+            }
+        }
+        stage('Test') {
+            steps {
+                echo " testing successful"
+            }
+        }
+        stage('quality gate') {
+            steps {
+                echo "deployment successful"
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo "deployment successful"
+            }
+        }
+    }
+}
