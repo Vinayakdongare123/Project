@@ -1,0 +1,40 @@
+pipeline {
+    agent {
+        node {label 'node1'}
+    }
+    stages {
+         stage('pull') {
+            steps {
+                git branch: 'main', url: 'https://github.com/SurajBele/studentdata.git'
+                echo "pull successful"
+            }
+        }
+        stage('Build') {
+            steps {
+                sh '/opt/apache-maven-3.9.14/bin/mvn clean package'
+                echo " building successful"
+            }
+        }
+        stage('Test') {
+            steps {
+                withSonarQubeEnv(installationName: 'sonar-server', credentialsId: 'sonar-token') {
+                  sh '/opt/apache-maven-3.9.14/bin/mvn sonar:sonar -Dsonar.projectKey=myproject2'
+                }
+               
+                echo " testing successful"
+            }
+        }
+        stage('quality gate') {
+            steps {
+                waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                echo "deployment successful"
+            }
+        }
+        stage('Deploy') {
+            steps {
+                deploy adapters: [tomcat9(alternativeDeploymentContext: '', credentialsId: 'tomcat-user', path: '', url: 'http://13.201.91.168:8080/')], contextPath: '/', war: '**/*.war'
+                echo "deployment successful"
+            }
+        }
+    }
+}
