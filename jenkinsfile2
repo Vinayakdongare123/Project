@@ -1,0 +1,39 @@
+pipeline {
+    agent {
+        node {label 'node1'}
+    }
+    stages {
+         stage('pull') {
+            steps {
+                git branch: 'main', url: 'https://github.com/SurajBele/studentdata.git'
+                echo "pull successful"
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'mvn clean'      
+                echo " building successful"
+            }
+        }
+        stage('Test') {
+            steps {
+                sh '''mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+                     -Dsonar.projectKey=Myproject \
+                     -Dsonar.projectName='Myproject' \
+                     -Dsonar.host.url=http://13.207.149.204:9000 \
+                     -Dsonar.token=sqp_6493d3f8929839e00a3f2d1345cbfb83f49b9c78'''
+                echo " testing successful"
+            }
+        }
+        stage('quality gate') {
+            steps {
+                echo "deployment successful"
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo "deployment successful"
+            }
+        }
+    }
+}
